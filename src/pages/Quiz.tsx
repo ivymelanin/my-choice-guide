@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle, ArrowRight, ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface Question {
   id: number;
@@ -177,9 +178,11 @@ const Quiz = () => {
                 This recommendation is based on your quiz responses. Please consult with a healthcare provider for personalized medical advice.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" className="bg-gradient-primary">
-                  Book Consultation
-                </Button>
+                <Link to="/booking">
+                  <Button size="lg" className="bg-gradient-primary">
+                    Book Consultation
+                  </Button>
+                </Link>
                 <Button variant="outline" size="lg" onClick={() => {
                   setShowResults(false);
                   setCurrentQuestion(0);

@@ -5,11 +5,21 @@ import { Calendar, Clock, MapPin, User, Phone, Mail } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 
 const Booking = () => {
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
   const [selectedProvider, setSelectedProvider] = useState("");
+  const [selectedConsultation, setSelectedConsultation] = useState("");
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    dob: "",
+    notes: ""
+  });
+  const { toast } = useToast();
 
   const providers = [
     {
@@ -63,6 +73,57 @@ const Booking = () => {
     }
   ];
 
+  const handleFormChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleConfirmBooking = () => {
+    if (!selectedDate || !selectedTime || !selectedProvider || !selectedConsultation) {
+      toast({
+        title: "Missing Information",
+        description: "Please complete all required fields before booking.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!formData.name || !formData.email || !formData.phone) {
+      toast({
+        title: "Contact Information Required",
+        description: "Please fill in your contact information.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Save booking to localStorage
+    const booking = {
+      id: Date.now().toString(),
+      consultation: selectedConsultation,
+      provider: providers.find(p => p.id.toString() === selectedProvider)?.name,
+      date: selectedDate,
+      time: selectedTime,
+      contact: formData,
+      status: "confirmed",
+      createdAt: new Date().toISOString()
+    };
+
+    const existingBookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+    localStorage.setItem('bookings', JSON.stringify([...existingBookings, booking]));
+
+    toast({
+      title: "Booking Confirmed!",
+      description: `Your appointment is scheduled for ${selectedDate} at ${selectedTime}`,
+    });
+
+    // Reset form
+    setSelectedDate("");
+    setSelectedTime("");
+    setSelectedProvider("");
+    setSelectedConsultation("");
+    setFormData({ name: "", email: "", phone: "", dob: "", notes: "" });
+  };
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="text-center mb-8">
@@ -87,7 +148,13 @@ const Booking = () => {
             </CardHeader>
             <CardContent className="space-y-3">
               {consultationTypes.map((consultation, index) => (
-                <div key={index} className="p-4 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors">
+                <div 
+                  key={index} 
+                  className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                    selectedConsultation === consultation.type ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'
+                  }`}
+                  onClick={() => setSelectedConsultation(consultation.type)}
+                >
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-semibold">{consultation.type}</h4>
                     <span className="font-bold text-primary">{consultation.price}</span>
@@ -194,28 +261,52 @@ const Booking = () => {
             <CardContent className="space-y-4">
               <div>
                 <Label htmlFor="name">Full Name</Label>
-                <Input id="name" placeholder="Enter your full name" />
+                <Input 
+                  id="name" 
+                  value={formData.name}
+                  onChange={(e) => handleFormChange('name', e.target.value)}
+                  placeholder="Enter your full name" 
+                />
               </div>
               
               <div>
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="your.email@example.com" />
+                <Input 
+                  id="email" 
+                  type="email" 
+                  value={formData.email}
+                  onChange={(e) => handleFormChange('email', e.target.value)}
+                  placeholder="your.email@example.com" 
+                />
               </div>
               
               <div>
                 <Label htmlFor="phone">Phone Number</Label>
-                <Input id="phone" type="tel" placeholder="(555) 123-4567" />
+                <Input 
+                  id="phone" 
+                  type="tel" 
+                  value={formData.phone}
+                  onChange={(e) => handleFormChange('phone', e.target.value)}
+                  placeholder="(555) 123-4567" 
+                />
               </div>
               
               <div>
                 <Label htmlFor="dob">Date of Birth</Label>
-                <Input id="dob" type="date" />
+                <Input 
+                  id="dob" 
+                  type="date" 
+                  value={formData.dob}
+                  onChange={(e) => handleFormChange('dob', e.target.value)}
+                />
               </div>
               
               <div>
                 <Label htmlFor="notes">Additional Notes (Optional)</Label>
                 <Textarea 
                   id="notes" 
+                  value={formData.notes}
+                  onChange={(e) => handleFormChange('notes', e.target.value)}
                   placeholder="Any specific concerns or questions you'd like to discuss..."
                   rows={3}
                 />
@@ -231,11 +322,13 @@ const Booking = () => {
             <CardContent className="space-y-3 text-secondary-foreground">
               <div className="flex justify-between">
                 <span>Consultation:</span>
-                <span className="font-semibold">Initial Consultation</span>
+                <span className="font-semibold">{selectedConsultation || "Select consultation"}</span>
               </div>
               <div className="flex justify-between">
                 <span>Provider:</span>
-                <span className="font-semibold">Dr. Sarah Johnson</span>
+                <span className="font-semibold">
+                  {selectedProvider ? providers.find(p => p.id.toString() === selectedProvider)?.name : "Select provider"}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span>Date:</span>
@@ -248,14 +341,20 @@ const Booking = () => {
               <div className="border-t pt-3 mt-3">
                 <div className="flex justify-between text-lg font-bold">
                   <span>Total:</span>
-                  <span>$150</span>
+                  <span>
+                    {selectedConsultation ? 
+                      consultationTypes.find(c => c.type === selectedConsultation)?.price : 
+                      "Select consultation"
+                    }
+                  </span>
                 </div>
               </div>
               
               <Button 
                 size="lg" 
                 className="w-full mt-4 bg-gradient-primary"
-                disabled={!selectedDate || !selectedTime}
+                disabled={!selectedDate || !selectedTime || !selectedProvider || !selectedConsultation}
+                onClick={handleConfirmBooking}
               >
                 Confirm Booking
               </Button>

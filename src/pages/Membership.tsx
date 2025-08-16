@@ -15,9 +15,33 @@ import {
   Percent,
   Phone
 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const Membership = () => {
   const [selectedPlan, setSelectedPlan] = useState("premium");
+  const { toast } = useToast();
+
+  const handleUpgrade = (planId: string) => {
+    const plan = membershipPlans.find(p => p.id === planId);
+    if (plan) {
+      toast({
+        title: `Upgrading to ${plan.name}`,
+        description: `You'll be redirected to payment for ${plan.price}${plan.period}`,
+      });
+      // Here you would integrate with a payment processor
+    }
+  };
+
+  const handleVoucherClaim = (voucherId: number) => {
+    const voucher = vouchers.find(v => v.id === voucherId);
+    if (voucher && voucher.status === 'active') {
+      toast({
+        title: "Voucher Claimed!",
+        description: `Code ${voucher.code} copied to clipboard`,
+      });
+      navigator.clipboard.writeText(voucher.code);
+    }
+  };
 
   const membershipPlans = [
     {
@@ -208,7 +232,12 @@ const Membership = () => {
                 <Button 
                   variant={plan.buttonVariant}
                   className="w-full"
-                  onClick={() => setSelectedPlan(plan.id)}
+                  onClick={() => {
+                    setSelectedPlan(plan.id);
+                    if (plan.id !== "basic") {
+                      handleUpgrade(plan.id);
+                    }
+                  }}
                 >
                   {plan.id === "basic" ? "Current Plan" : "Upgrade Now"}
                 </Button>
@@ -228,7 +257,13 @@ const Membership = () => {
           </h3>
           <div className="space-y-4">
             {vouchers.map((voucher) => (
-              <Card key={voucher.id} className={voucher.status === 'used' ? 'opacity-60' : ''}>
+              <Card 
+                key={voucher.id} 
+                className={`cursor-pointer transition-colors ${
+                  voucher.status === 'used' ? 'opacity-60' : 'hover:shadow-md'
+                }`}
+                onClick={() => handleVoucherClaim(voucher.id)}
+              >
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-semibold">{voucher.title}</h4>
@@ -241,6 +276,11 @@ const Membership = () => {
                     <span className="font-mono bg-muted px-2 py-1 rounded">{voucher.code}</span>
                     <span className="text-muted-foreground">Expires: {voucher.expires}</span>
                   </div>
+                  {voucher.status === 'active' && (
+                    <Button size="sm" variant="outline" className="w-full mt-2">
+                      Claim Voucher
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             ))}
@@ -307,7 +347,7 @@ const Membership = () => {
           <p className="text-secondary-foreground/80 mb-6 max-w-md mx-auto">
             Join thousands of women who trust us with their reproductive health journey
           </p>
-          <Button size="lg" className="bg-gradient-primary">
+          <Button size="lg" className="bg-gradient-primary" onClick={() => handleUpgrade("premium")}>
             Upgrade to Premium
           </Button>
         </CardContent>
