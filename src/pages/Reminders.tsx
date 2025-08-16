@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Bell, Clock, Calendar, Pill, CheckCircle, Plus, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface Reminder {
   id: number;
@@ -18,37 +19,64 @@ interface Reminder {
 }
 
 const Reminders = () => {
-  const [reminders, setReminders] = useState<Reminder[]>([
-    {
-      id: 1,
-      type: "pill",
-      title: "Birth Control Pill",
-      time: "08:00",
-      days: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-      active: true,
-      nextDue: "Today at 8:00 AM"
-    },
-    {
-      id: 2,
-      type: "appointment",
-      title: "Follow-up Appointment",
-      time: "14:30",
-      days: ["Tue"],
-      active: true,
-      nextDue: "Tuesday at 2:30 PM"
-    },
-    {
-      id: 3,
-      type: "refill",
-      title: "Prescription Refill",
-      time: "09:00",
-      days: ["Fri"],
-      active: false,
-      nextDue: "Friday at 9:00 AM"
-    }
-  ]);
-
+  const [reminders, setReminders] = useState<Reminder[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
+  
+  // Form state
+  const [formData, setFormData] = useState({
+    title: '',
+    type: 'pill',
+    time: '',
+    selectedDays: [] as string[]
+  });
+
+  // Load reminders from localStorage on component mount
+  useEffect(() => {
+    const savedReminders = localStorage.getItem('contraceptive-reminders');
+    if (savedReminders) {
+      setReminders(JSON.parse(savedReminders));
+    } else {
+      // Set default reminders if none exist
+      const defaultReminders = [
+        {
+          id: 1,
+          type: "pill",
+          title: "Birth Control Pill",
+          time: "08:00",
+          days: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+          active: true,
+          nextDue: "Today at 8:00 AM"
+        },
+        {
+          id: 2,
+          type: "appointment",
+          title: "Follow-up Appointment",
+          time: "14:30",
+          days: ["Tue"],
+          active: true,
+          nextDue: "Tuesday at 2:30 PM"
+        },
+        {
+          id: 3,
+          type: "refill",
+          title: "Prescription Refill",
+          time: "09:00",
+          days: ["Fri"],
+          active: false,
+          nextDue: "Friday at 9:00 AM"
+        }
+      ];
+      setReminders(defaultReminders);
+      localStorage.setItem('contraceptive-reminders', JSON.stringify(defaultReminders));
+    }
+  }, []);
+
+  // Save reminders to localStorage whenever reminders change
+  useEffect(() => {
+    if (reminders.length > 0) {
+      localStorage.setItem('contraceptive-reminders', JSON.stringify(reminders));
+    }
+  }, [reminders]);
 
   const toggleReminder = (id: number) => {
     setReminders(reminders.map(reminder => 
@@ -58,6 +86,48 @@ const Reminders = () => {
 
   const deleteReminder = (id: number) => {
     setReminders(reminders.filter(reminder => reminder.id !== id));
+  };
+
+  const toggleDay = (day: string) => {
+    setFormData(prev => ({
+      ...prev,
+      selectedDays: prev.selectedDays.includes(day)
+        ? prev.selectedDays.filter(d => d !== day)
+        : [...prev.selectedDays, day]
+    }));
+  };
+
+  const formatNextDue = (time: string, days: string[]) => {
+    if (days.length === 7) return `Daily at ${time}`;
+    if (days.length === 1) return `${days[0]} at ${time}`;
+    return `${days.join(', ')} at ${time}`;
+  };
+
+  const handleSaveReminder = () => {
+    if (!formData.title || !formData.time || formData.selectedDays.length === 0) {
+      toast.error("Please fill in all fields and select at least one day");
+      return;
+    }
+
+    const newReminder: Reminder = {
+      id: Date.now(),
+      type: formData.type,
+      title: formData.title,
+      time: formData.time,
+      days: formData.selectedDays,
+      active: true,
+      nextDue: formatNextDue(formData.time, formData.selectedDays)
+    };
+
+    setReminders(prev => [...prev, newReminder]);
+    setFormData({
+      title: '',
+      type: 'pill',
+      time: '',
+      selectedDays: []
+    });
+    setShowAddForm(false);
+    toast.success("Reminder added successfully!");
   };
 
   const getIcon = (type: string) => {
@@ -138,12 +208,21 @@ const Reminders = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="reminderTitle">Reminder Title</Label>
-                <Input id="reminderTitle" placeholder="e.g., Birth Control Pill" />
+                <Input 
+                  id="reminderTitle" 
+                  placeholder="e.g., Birth Control Pill"
+                  value={formData.title}
+                  onChange={(e) => setFormData(prev => ({...prev, title: e.target.value}))}
+                />
               </div>
               
               <div>
                 <Label htmlFor="reminderType">Type</Label>
-                <select className="w-full p-2 border rounded-md bg-background">
+                <select 
+                  className="w-full p-2 border rounded-md bg-background"
+                  value={formData.type}
+                  onChange={(e) => setFormData(prev => ({...prev, type: e.target.value}))}
+                >
                   {reminderTypes.map(type => (
                     <option key={type.value} value={type.value}>{type.label}</option>
                   ))}
@@ -152,14 +231,26 @@ const Reminders = () => {
               
               <div>
                 <Label htmlFor="reminderTime">Time</Label>
-                <Input id="reminderTime" type="time" />
+                <Input 
+                  id="reminderTime" 
+                  type="time"
+                  value={formData.time}
+                  onChange={(e) => setFormData(prev => ({...prev, time: e.target.value}))}
+                />
               </div>
               
               <div>
                 <Label>Days</Label>
                 <div className="flex gap-2 mt-2">
                   {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
-                    <Button key={day} variant="outline" size="sm" className="w-12">
+                    <Button 
+                      key={day} 
+                      variant={formData.selectedDays.includes(day) ? "default" : "outline"} 
+                      size="sm" 
+                      className="w-12"
+                      onClick={() => toggleDay(day)}
+                      type="button"
+                    >
                       {day}
                     </Button>
                   ))}
@@ -168,7 +259,11 @@ const Reminders = () => {
             </div>
             
             <div className="flex gap-4">
-              <Button className="bg-gradient-primary">
+              <Button 
+                className="bg-gradient-primary"
+                onClick={handleSaveReminder}
+                type="button"
+              >
                 Save Reminder
               </Button>
               <Button variant="outline" onClick={() => setShowAddForm(false)}>
