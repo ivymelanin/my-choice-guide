@@ -56,19 +56,19 @@ const Booking = () => {
     {
       type: "Initial Consultation",
       duration: "45 minutes",
-      price: "$150",
+      price: "R150",
       description: "Comprehensive discussion about contraceptive options"
     },
     {
       type: "Follow-up Visit",
       duration: "20 minutes", 
-      price: "$75",
+      price: "R50",
       description: "Check-in and adjustment of current method"
     },
     {
       type: "Emergency Consultation",
       duration: "30 minutes",
-      price: "$120",
+      price: "R200",
       description: "Urgent contraceptive concerns or side effects"
     }
   ];

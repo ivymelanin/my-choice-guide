@@ -67,44 +67,23 @@ const Membership = () => {
     {
       id: "premium",
       name: "Premium",
-      price: "$9.99",
+      price: "R49.99",
       period: "/month",
       description: "Enhanced features with personalized care",
       features: [
         "Advanced personalized recommendations",
-        "Detailed health tracking",
+        "Expect Consultations",
         "Priority appointment booking",
         "SMS and app reminders",
-        "Monthly vouchers worth $25",
-        "24/7 chat support",
+        "Monthly vouchers",
         "Exclusive health content"
       ],
       limitations: [],
       color: "border-primary",
       buttonVariant: "default" as const,
       popular: true
-    },
-    {
-      id: "elite",
-      name: "Elite",
-      price: "$19.99",
-      period: "/month",
-      description: "Premium care with exclusive benefits",
-      features: [
-        "Everything in Premium",
-        "Personal health concierge",
-        "Video consultations included (2/month)",
-        "Express prescription delivery",
-        "Monthly vouchers worth $50",
-        "Exclusive member events",
-        "Family planning consultation",
-        "VIP customer support"
-      ],
-      limitations: [],
-      color: "border-accent",
-      buttonVariant: "default" as const,
-      crown: true
     }
+    
   ];
 
   const currentMember = {
@@ -206,9 +185,7 @@ const Membership = () => {
                   Most Popular
                 </Badge>
               )}
-              {plan.crown && (
-                <Crown className="absolute -top-3 right-4 h-6 w-6 text-accent" />
-              )}
+              
               
               <CardHeader className="text-center">
                 <CardTitle className="text-2xl">{plan.name}</CardTitle>
@@ -299,7 +276,7 @@ const Membership = () => {
                 <Percent className="h-8 w-8 text-accent" />
                 <div>
                   <h4 className="font-semibold">Monthly Vouchers</h4>
-                  <p className="text-sm text-muted-foreground">Save up to $50 every month</p>
+                  <p className="text-sm text-muted-foreground">Save up to R50 every month</p>
                 </div>
               </CardContent>
             </Card>
@@ -314,15 +291,7 @@ const Membership = () => {
               </CardContent>
             </Card>
             
-            <Card>
-              <CardContent className="p-4 flex items-center gap-3">
-                <Phone className="h-8 w-8 text-accent" />
-                <div>
-                  <h4 className="font-semibold">24/7 Support</h4>
-                  <p className="text-sm text-muted-foreground">Round-the-clock expert assistance</p>
-                </div>
-              </CardContent>
-            </Card>
+          
             
             <Card>
               <CardContent className="p-4 flex items-center gap-3">
