@@ -97,7 +97,7 @@ const Membership = () => {
   const vouchers = [
     {
       id: 1,
-      title: "$25 Off Consultation",
+      title: "R25 Off Consultation",
       description: "Valid for any healthcare consultation",
       expires: "Dec 31, 2024",
       code: "HEALTH25",
@@ -113,7 +113,7 @@ const Membership = () => {
     },
     {
       id: 3,
-      title: "$15 Off Products",
+      title: "R15 Off Products",
       description: "Discount on contraceptive products",
       expires: "Oct 15, 2024",
       code: "PRODUCTS15",
