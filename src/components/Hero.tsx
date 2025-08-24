@@ -36,7 +36,7 @@ const Hero = () => {
               </Button>
             </Link>
             <Link to="/methods">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto text-lg px-8 py-6 border-white/30 text-white hover:bg-white/10">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto text-lg px-8 py-6 border-white/30 text-green hover:bg-white/10">
                 Learn About Methods
               </Button>
             </Link>
