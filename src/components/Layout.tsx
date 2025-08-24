@@ -12,6 +12,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     { href: "/booking", label: "Booking", icon: Calendar },
     { href: "/reminders", label: "Reminders", icon: Bell },
     { href: "/membership", label: "Membership", icon: Crown },
+
   ];
 
   return (
