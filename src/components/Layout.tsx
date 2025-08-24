@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "./ui/button";
-import { Heart, Calendar, User, Bell, BookOpen } from "lucide-react";
+import { Heart, Calendar, User, Bell, BookOpen, Crown } from "lucide-react";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
@@ -11,7 +11,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     { href: "/quiz", label: "Quiz", icon: Heart },
     { href: "/booking", label: "Booking", icon: Calendar },
     { href: "/reminders", label: "Reminders", icon: Bell },
-    { href: "/membership", label: "Membership", icon: User },
+    { href: "/membership", label: "Membership", icon: Crown },
   ];
 
   return (
