@@ -30,13 +30,13 @@ const Hero = () => {
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
             <Link to="/quiz">
-              <Button size="lg" variant="secondary" className="w-full sm:w-auto text-lg px-8 py-6">
+              <Button size="lg" variant="secondary" className="w-full sm:w-auto text-lg px-8 py-6 hover:bg-white/10">
                 Take the Quiz
                 <Heart className="ml-2 h-5 w-5" />
               </Button>
             </Link>
             <Link to="/methods">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto text-lg px-8 py-6 border-white/30 text-green hover:bg-white/10">
+              <Button size="lg" variant="secondary" className="w-full sm:w-auto text-lg px-8 py-6 hover:bg-white/10">
                 Learn About Methods
               </Button>
             </Link>
